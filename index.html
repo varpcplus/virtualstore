@@ -569,9 +569,9 @@
                     <div class="tg-avatar" id="userAvatar">?</div>
                     <div class="text-sm" id="displayName">guest</div>
                 </div>
-                <div class="balance-badge" onclick="showAddBalance()">
+                <div class="balance-badge" onclick="requestBalanceFromBot()">
                     <span>💰</span>
-                    <span id="userBalance">0₽</span>
+                    <span id="userBalance">Загрузка...</span>
                 </div>
             </div>
 
@@ -795,9 +795,6 @@
             tg.ready();
             tg.expand();
             
-            const savedBalance = localStorage.getItem('vs_balance_' + (tg.initDataUnsafe?.user?.id || 'demo'));
-            if (savedBalance) userBalance = parseInt(savedBalance);
-            
             if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
                 currentUser = tg.initDataUnsafe.user;
                 initApp();
@@ -815,7 +812,8 @@
             document.getElementById('userAvatar').textContent = currentUser.first_name.charAt(0).toUpperCase();
             document.getElementById('userIdField').textContent = 'ID: ' + currentUser.id;
             
-            updateBalanceDisplay();
+            // Запрашиваем баланс у бота
+            requestBalanceFromBot();
             
             document.getElementById('loadingView').classList.remove('active');
             document.getElementById('shopView').classList.add('active');
@@ -823,9 +821,23 @@
             renderProducts();
         }
 
-        function updateBalanceDisplay() {
-            document.getElementById('userBalance').textContent = userBalance + '₽';
-            localStorage.setItem('vs_balance_' + currentUser.id, userBalance);
+        // ЗАПРОС БАЛАНСА У БОТА
+        function requestBalanceFromBot() {
+            const requestData = {
+                type: 'get_balance',
+                user_id: currentUser.id
+            };
+            tg.sendData(JSON.stringify(requestData));
+            
+            // Показываем загрузку
+            document.getElementById('userBalance').textContent = 'Загрузка...';
+        }
+
+        // ОБНОВЛЕНИЕ БАЛАНСА (вызывается при получении ответа от бота)
+        function updateBalanceDisplay(balance) {
+            userBalance = balance;
+            document.getElementById('userBalance').textContent = balance + '₽';
+            document.getElementById('buyModalBalance').textContent = balance + '₽';
         }
 
         function switchCategory(category, btn) {
@@ -939,15 +951,7 @@
         function confirmPurchase() {
             if (!selectedProduct || userBalance < selectedProduct.finalPrice) return;
             
-            userBalance -= selectedProduct.finalPrice;
-            updateBalanceDisplay();
-            
-            closeModal('buyModal');
-            
-            document.getElementById('successProductName').textContent = selectedProduct.finalName;
-            document.getElementById('successModal').classList.add('active');
-            
-            // Отправляем данные о покупке боту через tg.sendData
+            // Отправляем запрос на покупку боту
             const purchaseData = {
                 type: 'purchase',
                 user_id: currentUser.id,
@@ -958,6 +962,10 @@
             };
             
             tg.sendData(JSON.stringify(purchaseData));
+            
+            closeModal('buyModal');
+            document.getElementById('successProductName').textContent = selectedProduct.finalName;
+            document.getElementById('successModal').classList.add('active');
         }
 
         function showAddBalance() {
@@ -1018,7 +1026,6 @@
             status.className = 'upload-status ' + type;
         }
 
-        // ОТПРАВКА ЧЕКА ЧЕРЕЗ TELEGRAM WEBAPP API
         function sendCheckToBot() {
             if (!selectedFile) return;
             
@@ -1026,12 +1033,10 @@
             btn.disabled = true;
             showUploadStatus('Отправка...', 'loading');
             
-            // Читаем файл как base64
             const reader = new FileReader();
             reader.onload = function(e) {
                 const base64Data = e.target.result;
                 
-                // Отправляем через tg.sendData
                 const checkData = {
                     type: 'check_upload',
                     user_id: currentUser.id,
@@ -1058,7 +1063,6 @@
         }
 
         function getFileFromBot() {
-            // Отправляем запрос на получение файла
             const requestData = {
                 type: 'get_file',
                 user_id: currentUser.id,
