@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Store</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #050505;
+            color: #f8fafc;
+            min-height: 100vh;
+        }
+
+        .grid-bg {
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .glow-bg {
+            position: fixed;
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(255, 107, 157, 0.12) 0%, transparent 60%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .glass-panel {
+            background: rgba(20, 20, 20, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .view {
+            position: fixed;
+            inset: 0;
+            overflow-y: auto;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+            z-index: 10;
+            background: transparent;
+        }
+
+        .view.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .auth-box {
+            width: 100%;
+            max-width: 440px;
+            animation: slideUp 0.5s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .user-badge {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 16px;
+            background: rgba(255, 107, 157, 0.1);
+            border-radius: 50px;
+            border: 1px solid rgba(255, 107, 157, 0.2);
+            font-weight: 600;
+        }
+
+        .balance-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(34, 197, 94, 0.1);
+            border-radius: 50px;
+            border: 1px solid rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .balance-badge:hover {
+            background: rgba(34, 197, 94, 0.2);
+        }
+
+        .price-tag {
+            font-size: 20px;
+            font-weight: 700;
+            color: #ff6b9d;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #ff6b9d, #c44569);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .tab-container {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+            margin-bottom: 20px;
+            scrollbar-width: none;
+        }
+
+        .tab-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .category-tab {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: #94a3b8;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            white-space: nowrap;
+            font-size: 13px;
+        }
+
+        .category-tab:hover {
+            background: rgba(255, 107, 157, 0.1);
+            border-color: rgba(255, 107, 157, 0.3);
+        }
+
+        .category-tab.active {
+            background: linear-gradient(135deg, #ff6b9d, #c44569);
+            color: white;
+            border-color: transparent;
+        }
+
+        .product-card {
+            background: rgba(20, 20, 20, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            transition: all 0.3s;
+        }
+
+        .product-card:hover {
+            border-color: #ff6b9d;
+        }
+
+        .buy-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #ff6b9d, #c44569);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 15px;
+            transition: all 0.2s;
+            margin-top: 12px;
+        }
+
+        .buy-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 8px 25px rgba(255, 107, 157, 0.4);
+        }
+
+        .buy-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .price-option {
+            display: inline-block;
+            padding: 6px 12px;
+            background: rgba(255, 107, 157, 0.1);
+            border: 1px solid rgba(255, 107, 157, 0.2);
+            border-radius: 8px;
+            font-size: 12px;
+            color: #ff6b9d;
+            margin-right: 6px;
+            margin-bottom: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .price-option:hover {
+            background: rgba(255, 107, 157, 0.2);
+        }
+
+        .price-option.selected {
+            background: linear-gradient(135deg, #ff6b9d, #c44569);
+            color: white;
+            border-color: transparent;
+        }
+
+        .support-card {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .support-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255, 107, 157, 0.2);
+        }
+
+        .tg-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff6b9d, #c44569);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .shop-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .video-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: #ff6b9d;
+            font-size: 12px;
+            text-decoration: none;
+            margin-top: 8px;
+            transition: all 0.2s;
+        }
+
+        .video-link:hover {
+            background: rgba(255, 107, 157, 0.1);
+            border-color: rgba(255, 107, 157, 0.3);
+        }
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: rgba(20, 20, 20, 0.95);
+            border: 1px solid rgba(255, 107, 157, 0.3);
+            border-radius: 24px;
+            padding: 28px;
+            width: 100%;
+            max-width: 360px;
+            text-align: center;
+            animation: slideUp 0.3s ease;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 36px;
+            height: 36px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.2s;
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 107, 157, 0.3);
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            border: 1px solid rgba(34, 197, 94, 0.2);
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            background: #22c55e;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .add-balance-btn {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            border: none;
+        }
+
+        .add-balance-btn:hover {
+            box-shadow: 0 8px 25px rgba(34, 197, 94, 0.4);
+        }
+
+        .instruction-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 16px;
+            text-align: left;
+        }
+
+        .step-number {
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, #ff6b9d, #c44569);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .step-text {
+            font-size: 14px;
+            color: #e2e8f0;
+            line-height: 1.5;
+        }
+
+        .copy-field {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 12px;
+            font-family: monospace;
+            font-size: 13px;
+            color: #ff6b9d;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin: 8px 0;
+        }
+
+        .copy-field:hover {
+            background: rgba(255, 107, 157, 0.1);
+            border-color: rgba(255, 107, 157, 0.3);
+        }
+
+        /* Стили для загрузки чека */
+        .file-upload-area {
+            border: 2px dashed rgba(255, 107, 157, 0.3);
+            border-radius: 16px;
+            padding: 32px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 16px 0;
+        }
+
+        .file-upload-area:hover {
+            border-color: #ff6b9d;
+            background: rgba(255, 107, 157, 0.05);
+        }
+
+        .file-upload-area.has-file {
+            border-color: #22c55e;
+            background: rgba(34, 197, 94, 0.05);
+        }
+
+        .file-upload-icon {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 12px;
+            color: #ff6b9d;
+        }
+
+        .file-upload-text {
+            font-size: 14px;
+            color: #94a3b8;
+            margin-bottom: 8px;
+        }
+
+        .file-upload-hint {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .file-preview {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 12px;
+            margin-top: 12px;
+        }
+
+        .file-name {
+            font-size: 13px;
+            color: #22c55e;
+            margin-top: 8px;
+            word-break: break-all;
+        }
+
+        .upload-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 15px;
+            transition: all 0.2s;
+            margin-top: 16px;
+        }
+
+        .upload-btn:hover:not(:disabled) {
+            transform: scale(1.02);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+        }
+
+        .upload-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .hidden-input {
+            display: none;
+        }
+
+        .upload-status {
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 12px;
+            font-size: 13px;
+            display: none;
+        }
+
+        .upload-status.success {
+            display: block;
+            background: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+            border: 1px solid rgba(34, 197, 94, 0.2);
+        }
+
+        .upload-status.error {
+            display: block;
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .upload-status.loading {
+            display: block;
+            background: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="glow-bg"></div>
+    <div class="grid-bg"></div>
+
+    <div id="loadingView" class="view active">
+        <div class="auth-container">
+            <div class="auth-box text-center">
+                <div class="glass-panel rounded-3xl p-8">
+                    <div class="loading-spinner mb-4" style="width: 40px; height: 40px; border-width: 4px;"></div>
+                    <h2 class="text-xl font-bold mb-2">Подключение...</h2>
+                    <p class="text-gray-500">Ожидание данных Telegram</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="shopView" class="view">
+        <div class="relative z-10 max-w-md mx-auto p-4">
+            
+            <div class="shop-header">
+                <h1 class="text-2xl font-bold">Virtual Store</h1>
+            </div>
+
+            <div class="flex justify-between items-center mb-4">
+                <div class="user-badge">
+                    <div class="tg-avatar" id="userAvatar">?</div>
+                    <div class="text-sm" id="displayName">guest</div>
+                </div>
+                <div class="balance-badge" onclick="showAddBalance()">
+                    <span>💰</span>
+                    <span id="userBalance">0₽</span>
+                </div>
+            </div>
+
+            <div class="glass-panel rounded-2xl p-5 mb-4">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h2 class="text-lg font-bold mb-1">Virtual Store</h2>
+                        <div class="status-badge">
+                            <span class="status-dot"></span>
+                            <span>Online</span>
+                        </div>
+                    </div>
+                    <div class="text-right text-xs text-gray-400">
+                        <div>Обновление: 01.01.2026</div>
+                    </div>
+                </div>
+
+                <div class="support-card glass-panel rounded-xl p-4 border border-pink-500/30 bg-pink-500/5" onclick="openSupport()">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="text-sm font-bold text-pink-400 mb-1">Поддержка</div>
+                            <div class="text-xs text-gray-400">Нажми чтобы написать @voumy</div>
+                        </div>
+                        <svg class="w-6 h-6 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-container">
+                <button class="category-tab active" onclick="switchCategory('all', this)">Все</button>
+                <button class="category-tab" onclick="switchCategory('triggerbot', this)">Триггер</button>
+                <button class="category-tab" onclick="switchCategory('scripts', this)">Скрипты</button>
+                <button class="category-tab" onclick="switchCategory('redux', this)">Редуксы</button>
+                <button class="category-tab" onclick="switchCategory('packs', this)">Паки</button>
+                <button class="category-tab" onclick="switchCategory('utility', this)">Утилиты</button>
+            </div>
+
+            <div id="productsGrid"></div>
+
+        </div>
+    </div>
+
+    <!-- Модальное окно пополнения баланса с загрузкой чека -->
+    <div id="balanceModal" class="modal">
+        <button class="close-btn" onclick="closeModal('balanceModal')">×</button>
+        <div class="modal-content">
+            <h2 class="text-xl font-bold mb-1">💰 Пополнение баланса</h2>
+            <p class="text-gray-400 text-sm mb-4">Через СБП</p>
+            
+            <div class="instruction-step">
+                <div class="step-number">1</div>
+                <div class="step-text">Переведите нужную сумму на номер:</div>
+            </div>
+            
+            <div class="copy-field" onclick="copyToClipboard('+79991234567')">+7 (999) 123-45-67</div>
+            
+            <div class="instruction-step">
+                <div class="step-number">2</div>
+                <div class="step-text">Банк: <b>Сбербанк</b></div>
+            </div>
+            
+            <div class="instruction-step">
+                <div class="step-number">3</div>
+                <div class="step-text">В комментарии укажите ваш ID:</div>
+            </div>
+            
+            <div class="copy-field" id="userIdField" onclick="copyUserId()">ID: загрузка...</div>
+            
+            <div class="instruction-step">
+                <div class="step-number">4</div>
+                <div class="step-text">Прикрепите скриншот чека ниже:</div>
+            </div>
+
+            <!-- Зона загрузки файла -->
+            <div class="file-upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+                <svg class="file-upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+                <div class="file-upload-text">Нажмите чтобы выбрать чек</div>
+                <div class="file-upload-hint">JPG, PNG до 10MB</div>
+                <img id="filePreview" class="file-preview hidden" />
+                <div id="fileName" class="file-name hidden"></div>
+            </div>
+
+            <input type="file" id="fileInput" class="hidden-input" accept="image/*" onchange="handleFileSelect(event)">
+            
+            <div id="uploadStatus" class="upload-status"></div>
+
+            <button class="upload-btn" id="sendCheckBtn" onclick="sendCheckToAdmin()" disabled>
+                Отправить чек админу
+            </button>
+            
+            <div class="text-xs text-gray-400 mt-3">
+                После проверки баланс будет зачислен<br>в течение 5-30 минут
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно покупки -->
+    <div id="buyModal" class="modal">
+        <button class="close-btn" onclick="closeModal('buyModal')">×</button>
+        <div class="modal-content">
+            <h2 class="text-xl font-bold mb-1">🛒 Подтверждение</h2>
+            <p class="text-gray-400 text-sm mb-4" id="buyProductName">Товар</p>
+            
+            <div class="text-3xl font-bold gradient-text mb-4" id="buyProductPrice">0₽</div>
+            
+            <div class="text-sm text-gray-400 mb-4">
+                💳 Ваш баланс: <span id="buyModalBalance">0₽</span>
+            </div>
+            
+            <div id="insufficientFunds" class="hidden">
+                <div class="text-red-400 text-sm mb-3">❌ Недостаточно средств</div>
+                <button class="buy-btn add-balance-btn mb-2" onclick="closeModal('buyModal'); showAddBalance()">
+                    Пополнить баланс
+                </button>
+            </div>
+            
+            <button id="confirmBuyBtn" class="buy-btn" onclick="confirmPurchase()">
+                Подтвердить покупку
+            </button>
+            
+            <button onclick="closeModal('buyModal')" class="w-full py-3 mt-2 text-gray-400 hover:text-white text-sm">
+                Отмена
+            </button>
+        </div>
+    </div>
+
+    <!-- Модальное окно успешной покупки -->
+    <div id="successModal" class="modal">
+        <button class="close-btn" onclick="closeModal('successModal')">×</button>
+        <div class="modal-content">
+            <div class="text-5xl mb-4">✅</div>
+            <h2 class="text-xl font-bold mb-2">Покупка успешна!</h2>
+            <p class="text-gray-400 text-sm mb-4" id="successProductName">Товар куплен</p>
+            
+            <div class="text-sm text-gray-400 mb-4">
+                Файл будет отправлен вам в боте<br>
+                Нажмите кнопку ниже
+            </div>
+            
+            <button class="buy-btn" onclick="openBotForFile()">
+                Получить файл в боте
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let tg = window.Telegram.WebApp;
+        let currentUser = null;
+        let currentCategory = 'all';
+        let selectedProduct = null;
+        let selectedPriceOption = null;
+        let userBalance = 0;
+        let selectedFile = null;
+
+        const BOT_USERNAME = 'voumy';
+        const ADMIN_ID = '7837664952'; // ID админа для отправки чека
+        const BACKEND_URL = 'https://your-backend.com/api'; // Замените на URL вашего бэкенда
+
+        const products = [
+            { 
+                id: 'nagruz', 
+                name: 'Нагруз', 
+                category: 'scripts', 
+                price: 370,
+                video: 'https://www.tiktok.com/t/ZThv9Vhnq/'
+            },
+            { id: 'antitp', name: 'Анти-ТП', category: 'scripts', price: 370 },
+            { 
+                id: 'rega', 
+                name: 'Рега', 
+                category: 'scripts', 
+                price: 370,
+                video: 'https://www.tiktok.com/t/ZThv9Vhnq/'
+            },
+            { 
+                id: 'triggerbot', 
+                name: 'Триггербот', 
+                category: 'triggerbot',
+                video: 'https://youtu.be/lxwfcZS4Ey8',
+                prices: [
+                    { label: '7 дней', price: 300, id: 'triggerbot_7d' },
+                    { label: '14 дней', price: 400, id: 'triggerbot_14d' },
+                    { label: '30 дней', price: 700, id: 'triggerbot_30d' },
+                    { label: 'Навсегда', price: 2500, id: 'triggerbot_perm' }
+                ]
+            },
+            { 
+                id: 'pack', 
+                name: 'Пак (Нагруз + Анти-ТП + Рега)', 
+                category: 'packs', 
+                price: 570,
+                video: 'https://youtu.be/YzmVadod_qg'
+            },
+            { 
+                id: 'cleaner', 
+                name: 'Батники для очистки читов', 
+                category: 'utility', 
+                price: 370,
+                video: 'https://youtu.be/Fozc1P_tUPk'
+            },
+            { id: 'hide', name: 'Прятка чита (все виды)', category: 'utility', price: 444 },
+            { 
+                id: 'fastreload', 
+                name: 'Фаст Релоад Редукс', 
+                category: 'redux', 
+                price: 370,
+                video: 'https://youtu.be/35bH6DZP-i0'
+            },
+            { 
+                id: 'reduxtp', 
+                name: 'Редукс с ТП', 
+                category: 'redux', 
+                price: 370,
+                video: 'https://www.youtube.com/watch?v=vWboukNBOOo'
+            }
+        ];
+
+        window.addEventListener('DOMContentLoaded', () => {
+            tg.ready();
+            tg.expand();
+            
+            const savedBalance = localStorage.getItem('vs_balance_' + (tg.initDataUnsafe?.user?.id || 'demo'));
+            if (savedBalance) userBalance = parseInt(savedBalance);
+            
+            if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                currentUser = tg.initDataUnsafe.user;
+                initApp();
+            } else {
+                setTimeout(() => {
+                    currentUser = { first_name: 'Test', id: 123456, username: 'testuser' };
+                    initApp();
+                }, 1000);
+            }
+        });
+
+        function initApp() {
+            const displayName = currentUser.first_name + (currentUser.last_name ? ' ' + currentUser.last_name : '');
+            document.getElementById('displayName').textContent = displayName;
+            document.getElementById('userAvatar').textContent = currentUser.first_name.charAt(0).toUpperCase();
+            document.getElementById('userIdField').textContent = 'ID: ' + currentUser.id;
+            
+            updateBalanceDisplay();
+            
+            document.getElementById('loadingView').classList.remove('active');
+            document.getElementById('shopView').classList.add('active');
+            
+            renderProducts();
+        }
+
+        function updateBalanceDisplay() {
+            document.getElementById('userBalance').textContent = userBalance + '₽';
+            localStorage.setItem('vs_balance_' + currentUser.id, userBalance);
+        }
+
+        function switchCategory(category, btn) {
+            currentCategory = category;
+            document.querySelectorAll('.category-tab').forEach(tab => tab.classList.remove('active'));
+            btn.classList.add('active');
+            renderProducts();
+        }
+
+        function renderProducts() {
+            const grid = document.getElementById('productsGrid');
+            grid.innerHTML = '';
+            
+            const filtered = currentCategory === 'all' 
+                ? products 
+                : products.filter(p => p.category === currentCategory);
+            
+            filtered.forEach(product => {
+                grid.appendChild(createProductCard(product));
+            });
+        }
+
+        function createProductCard(product) {
+            const div = document.createElement('div');
+            div.className = 'product-card';
+            
+            let priceHtml = '';
+            if (product.prices) {
+                priceHtml = '<div class="mt-2">';
+                product.prices.forEach((p, idx) => {
+                    priceHtml += `<span class="price-option" onclick="selectPriceOption(this, '${product.id}', ${idx}, event)">${p.label}: ${p.price}₽</span>`;
+                });
+                priceHtml += '</div>';
+            } else {
+                priceHtml = `<div class="price-tag mt-1">${product.price}₽</div>`;
+            }
+
+            let videoHtml = '';
+            if (product.video) {
+                videoHtml = `<a href="${product.video}" target="_blank" class="video-link" onclick="event.stopPropagation()">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Видео
+                </a>`;
+            }
+            
+            div.innerHTML = `
+                <div class="flex justify-between items-start">
+                    <h3 class="text-base font-bold">${product.name}</h3>
+                </div>
+                ${priceHtml}
+                ${videoHtml}
+                <button class="buy-btn" onclick="initiateBuy('${product.id}')">Купить</button>
+            `;
+            
+            return div;
+        }
+
+        function selectPriceOption(el, productId, idx, event) {
+            event.stopPropagation();
+            const card = el.closest('.product-card');
+            card.querySelectorAll('.price-option').forEach(opt => opt.classList.remove('selected'));
+            el.classList.add('selected');
+            selectedPriceOption = { productId, idx };
+        }
+
+        function initiateBuy(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+            
+            selectedProduct = product;
+            let price = 0;
+            let displayName = product.name;
+            
+            if (product.prices) {
+                if (selectedPriceOption && selectedPriceOption.productId === productId) {
+                    const opt = product.prices[selectedPriceOption.idx];
+                    price = opt.price;
+                    displayName += ` (${opt.label})`;
+                    selectedProduct.actualId = opt.id;
+                } else {
+                    price = product.prices[0].price;
+                    displayName += ` (${product.prices[0].label})`;
+                    selectedProduct.actualId = product.prices[0].id;
+                }
+            } else {
+                price = product.price;
+                selectedProduct.actualId = product.id;
+            }
+            
+            selectedProduct.finalPrice = price;
+            selectedProduct.finalName = displayName;
+            
+            showBuyModal(displayName, price);
+        }
+
+        function showBuyModal(name, price) {
+            document.getElementById('buyProductName').textContent = name;
+            document.getElementById('buyProductPrice').textContent = price + '₽';
+            document.getElementById('buyModalBalance').textContent = userBalance + '₽';
+            
+            const insufficient = price > userBalance;
+            document.getElementById('insufficientFunds').classList.toggle('hidden', !insufficient);
+            document.getElementById('confirmBuyBtn').classList.toggle('hidden', insufficient);
+            
+            document.getElementById('buyModal').classList.add('active');
+        }
+
+        function confirmPurchase() {
+            if (!selectedProduct || userBalance < selectedProduct.finalPrice) return;
+            
+            userBalance -= selectedProduct.finalPrice;
+            updateBalanceDisplay();
+            
+            closeModal('buyModal');
+            
+            document.getElementById('successProductName').textContent = selectedProduct.finalName;
+            document.getElementById('successModal').classList.add('active');
+            
+            // Отправляем уведомление о покупке на бэкенд
+            notifyBackend('purchase', {
+                user_id: currentUser.id,
+                username: currentUser.username,
+                product_id: selectedProduct.actualId,
+                product_name: selectedProduct.finalName,
+                price: selectedProduct.finalPrice
+            });
+        }
+
+        function showAddBalance() {
+            document.getElementById('balanceModal').classList.add('active');
+            selectedFile = null;
+            resetUploadArea();
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            // Проверка типа файла
+            if (!file.type.startsWith('image/')) {
+                showUploadStatus('Пожалуйста, выберите изображение', 'error');
+                return;
+            }
+            
+            // Проверка размера (10MB)
+            if (file.size > 10 * 1024 * 1024) {
+                showUploadStatus('Файл слишком большой (макс. 10MB)', 'error');
+                return;
+            }
+            
+            selectedFile = file;
+            
+            // Показываем превью
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.getElementById('filePreview');
+                preview.src = e.target.result;
+                preview.classList.remove('hidden');
+                
+                document.getElementById('fileName').textContent = file.name;
+                document.getElementById('fileName').classList.remove('hidden');
+                
+                document.getElementById('uploadArea').classList.add('has-file');
+                document.querySelector('.file-upload-text').textContent = 'Чек выбран';
+                document.querySelector('.file-upload-hint').textContent = 'Нажмите "Отправить чек админу"';
+                
+                document.getElementById('sendCheckBtn').disabled = false;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function resetUploadArea() {
+            document.getElementById('filePreview').classList.add('hidden');
+            document.getElementById('fileName').classList.add('hidden');
+            document.getElementById('uploadArea').classList.remove('has-file');
+            document.querySelector('.file-upload-text').textContent = 'Нажмите чтобы выбрать чек';
+            document.querySelector('.file-upload-hint').textContent = 'JPG, PNG до 10MB';
+            document.getElementById('sendCheckBtn').disabled = true;
+            document.getElementById('uploadStatus').className = 'upload-status';
+            document.getElementById('uploadStatus').textContent = '';
+            document.getElementById('fileInput').value = '';
+        }
+
+        function showUploadStatus(text, type) {
+            const status = document.getElementById('uploadStatus');
+            status.textContent = text;
+            status.className = 'upload-status ' + type;
+        }
+
+        async function sendCheckToAdmin() {
+            if (!selectedFile) return;
+            
+            const btn = document.getElementById('sendCheckBtn');
+            btn.disabled = true;
+            showUploadStatus('Отправка...', 'loading');
+            
+            try {
+                // Создаем FormData для отправки
+                const formData = new FormData();
+                formData.append('photo', selectedFile);
+                formData.append('user_id', currentUser.id);
+                formData.append('username', currentUser.username || 'нет');
+                formData.append('type', 'balance_request');
+                
+                // Отправляем на бэкенд
+                const response = await fetch(`${BACKEND_URL}/send-check`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    showUploadStatus('✅ Чек отправлен админу! Ожидайте зачисления.', 'success');
+                    setTimeout(() => {
+                        closeModal('balanceModal');
+                        resetUploadArea();
+                    }, 2000);
+                } else {
+                    throw new Error('Ошибка сервера');
+                }
+            } catch (error) {
+                console.error('Ошибка отправки:', error);
+                showUploadStatus('❌ Ошибка отправки. Попробуйте через бот.', 'error');
+                btn.disabled = false;
+                
+                // Fallback: открываем бота
+                setTimeout(() => {
+                    tg.openTelegramLink(`https://t.me/${BOT_USERNAME}?start=addbalance_${currentUser.id}`);
+                }, 1500);
+            }
+        }
+
+        function notifyBackend(type, data) {
+            // Отправка уведомления о покупке на бэкенд
+            fetch(`${BACKEND_URL}/notify`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ type, data })
+            }).catch(console.error);
+        }
+
+        function openBotForFile() {
+            tg.openTelegramLink(`https://t.me/${BOT_USERNAME}?start=getfile_${selectedProduct?.actualId || ''}`);
+            closeModal('successModal');
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text);
+            tg.showAlert('Скопировано: ' + text);
+        }
+
+        function copyUserId() {
+            copyToClipboard(currentUser.id.toString());
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function openSupport() {
+            tg.openTelegramLink('https://t.me/voumy');
+        }
+    </script>
+</body>
+</html>
+
