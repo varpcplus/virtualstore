@@ -123,24 +123,6 @@
             font-weight: 600;
         }
 
-        .balance-badge {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
-            background: rgba(34, 197, 94, 0.1);
-            border-radius: 50px;
-            border: 1px solid rgba(34, 197, 94, 0.2);
-            color: #22c55e;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .balance-badge:hover {
-            background: rgba(34, 197, 94, 0.2);
-        }
-
         .price-tag {
             font-size: 20px;
             font-weight: 700;
@@ -222,12 +204,6 @@
             box-shadow: 0 8px 25px rgba(255, 107, 157, 0.4);
         }
 
-        .buy-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
-
         .price-option {
             display: inline-block;
             padding: 6px 12px;
@@ -238,18 +214,6 @@
             color: #ff6b9d;
             margin-right: 6px;
             margin-bottom: 6px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .price-option:hover {
-            background: rgba(255, 107, 157, 0.2);
-        }
-
-        .price-option.selected {
-            background: linear-gradient(135deg, #ff6b9d, #c44569);
-            color: white;
-            border-color: transparent;
         }
 
         .support-card {
@@ -324,8 +288,6 @@
             max-width: 360px;
             text-align: center;
             animation: slideUp 0.3s ease;
-            max-height: 90vh;
-            overflow-y: auto;
         }
 
         .close-btn {
@@ -376,13 +338,21 @@
             50% { opacity: 0.5; }
         }
 
-        .add-balance-btn {
-            background: linear-gradient(135deg, #22c55e, #16a34a);
-            border: none;
+        .instruction-box {
+            background: rgba(255, 107, 157, 0.05);
+            border: 1px solid rgba(255, 107, 157, 0.2);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            text-align: left;
         }
 
-        .add-balance-btn:hover {
-            box-shadow: 0 8px 25px rgba(34, 197, 94, 0.4);
+        .instruction-title {
+            font-weight: 700;
+            color: #ff6b9d;
+            margin-bottom: 16px;
+            font-size: 16px;
+            text-align: center;
         }
 
         .instruction-step {
@@ -390,7 +360,9 @@
             align-items: flex-start;
             gap: 12px;
             margin-bottom: 16px;
-            text-align: left;
+            font-size: 14px;
+            color: #e2e8f0;
+            line-height: 1.5;
         }
 
         .step-number {
@@ -406,137 +378,33 @@
             flex-shrink: 0;
         }
 
-        .step-text {
-            font-size: 14px;
-            color: #e2e8f0;
-            line-height: 1.5;
-        }
-
-        .copy-field {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            padding: 12px;
-            font-family: monospace;
-            font-size: 13px;
-            color: #ff6b9d;
-            cursor: pointer;
-            transition: all 0.2s;
-            margin: 8px 0;
-        }
-
-        .copy-field:hover {
-            background: rgba(255, 107, 157, 0.1);
-            border-color: rgba(255, 107, 157, 0.3);
-        }
-
-        .file-upload-area {
-            border: 2px dashed rgba(255, 107, 157, 0.3);
-            border-radius: 16px;
-            padding: 32px 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin: 16px 0;
-        }
-
-        .file-upload-area:hover {
-            border-color: #ff6b9d;
-            background: rgba(255, 107, 157, 0.05);
-        }
-
-        .file-upload-area.has-file {
-            border-color: #22c55e;
-            background: rgba(34, 197, 94, 0.05);
-        }
-
-        .file-upload-icon {
-            width: 48px;
-            height: 48px;
-            margin: 0 auto 12px;
-            color: #ff6b9d;
-        }
-
-        .file-upload-text {
-            font-size: 14px;
-            color: #94a3b8;
-            margin-bottom: 8px;
-        }
-
-        .file-upload-hint {
-            font-size: 12px;
-            color: #64748b;
-        }
-
-        .file-preview {
-            max-width: 100%;
-            max-height: 200px;
-            border-radius: 12px;
-            margin-top: 12px;
-        }
-
-        .file-name {
-            font-size: 13px;
-            color: #22c55e;
-            margin-top: 8px;
-            word-break: break-all;
-        }
-
-        .upload-btn {
+        .bot-link-btn {
             width: 100%;
-            padding: 14px;
+            padding: 16px;
             background: linear-gradient(135deg, #3b82f6, #2563eb);
             color: white;
             border: none;
-            border-radius: 10px;
+            border-radius: 12px;
             font-weight: 600;
+            font-size: 16px;
             cursor: pointer;
-            font-size: 15px;
             transition: all 0.2s;
-            margin-top: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
-        .upload-btn:hover:not(:disabled) {
+        .bot-link-btn:hover {
             transform: scale(1.02);
             box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
         }
 
-        .upload-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .hidden-input {
-            display: none;
-        }
-
-        .upload-status {
-            padding: 12px;
-            border-radius: 8px;
-            margin-top: 12px;
-            font-size: 13px;
-            display: none;
-        }
-
-        .upload-status.success {
-            display: block;
-            background: rgba(34, 197, 94, 0.1);
-            color: #22c55e;
-            border: 1px solid rgba(34, 197, 94, 0.2);
-        }
-
-        .upload-status.error {
-            display: block;
-            background: rgba(239, 68, 68, 0.1);
-            color: #ef4444;
-            border: 1px solid rgba(239, 68, 68, 0.2);
-        }
-
-        .upload-status.loading {
-            display: block;
-            background: rgba(59, 130, 246, 0.1);
-            color: #3b82f6;
-            border: 1px solid rgba(59, 130, 246, 0.2);
+        .bot-username {
+            font-family: monospace;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
         }
     </style>
 </head>
@@ -564,14 +432,10 @@
                 <h1 class="text-2xl font-bold">Virtual Store</h1>
             </div>
 
-            <div class="flex justify-between items-center mb-4">
+            <div class="flex justify-center mb-4">
                 <div class="user-badge">
                     <div class="tg-avatar" id="userAvatar">?</div>
                     <div class="text-sm" id="displayName">guest</div>
-                </div>
-                <div class="balance-badge" onclick="requestBalanceFromBot()">
-                    <span>💰</span>
-                    <span id="userBalance">Загрузка...</span>
                 </div>
             </div>
 
@@ -616,106 +480,46 @@
         </div>
     </div>
 
-    <!-- Модальное окно пополнения баланса с загрузкой чека -->
-    <div id="balanceModal" class="modal">
-        <button class="close-btn" onclick="closeModal('balanceModal')">×</button>
+    <!-- Модальное окно инструкции -->
+    <div id="instructionModal" class="modal">
+        <button class="close-btn" onclick="closeModal()">×</button>
         <div class="modal-content">
-            <h2 class="text-xl font-bold mb-1">💰 Пополнение баланса</h2>
-            <p class="text-gray-400 text-sm mb-4">Через СБП</p>
+            <h2 class="text-2xl font-bold mb-1">🛒 Как купить</h2>
+            <p class="text-gray-400 text-sm mb-4">Следуйте инструкции ниже</p>
             
-            <div class="instruction-step">
-                <div class="step-number">1</div>
-                <div class="step-text">Переведите нужную сумму на номер:</div>
-            </div>
-            
-            <div class="copy-field" onclick="copyToClipboard('+79991234567')">+7 (999) 123-45-67</div>
-            
-            <div class="instruction-step">
-                <div class="step-number">2</div>
-                <div class="step-text">Банк: <b>Сбербанк</b></div>
-            </div>
-            
-            <div class="instruction-step">
-                <div class="step-number">3</div>
-                <div class="step-text">В комментарии укажите ваш ID:</div>
-            </div>
-            
-            <div class="copy-field" id="userIdField" onclick="copyUserId()">ID: загрузка...</div>
-            
-            <div class="instruction-step">
-                <div class="step-number">4</div>
-                <div class="step-text">Прикрепите скриншот чека ниже:</div>
+            <div class="instruction-box">
+                <div class="instruction-title">📋 Инструкция по покупке</div>
+                
+                <div class="instruction-step">
+                    <div class="step-number">1</div>
+                    <div>Перейдите в бот <span class="bot-username">@virtualgucci_bot</span></div>
+                </div>
+                
+                <div class="instruction-step">
+                    <div class="step-number">2</div>
+                    <div>Напишите команду <span class="bot-username">/start</span></div>
+                </div>
+                
+                <div class="instruction-step">
+                    <div class="step-number">3</div>
+                    <div>Нажмите <b>«Пополнить баланс»</b> и следуйте инструкциям для пополнения</div>
+                </div>
+                
+                <div class="instruction-step">
+                    <div class="step-number">4</div>
+                    <div>После пополнения нажмите <b>«Товары»</b> и выберите нужный товар для покупки</div>
+                </div>
             </div>
 
-            <div class="file-upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
-                <svg class="file-upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            <button class="bot-link-btn" onclick="openBot()">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
                 </svg>
-                <div class="file-upload-text">Нажмите чтобы выбрать чек</div>
-                <div class="file-upload-hint">JPG, PNG до 10MB</div>
-                <img id="filePreview" class="file-preview hidden" />
-                <div id="fileName" class="file-name hidden"></div>
-            </div>
-
-            <input type="file" id="fileInput" class="hidden-input" accept="image/*" onchange="handleFileSelect(event)">
-            
-            <div id="uploadStatus" class="upload-status"></div>
-
-            <button class="upload-btn" id="sendCheckBtn" onclick="sendCheckToBot()" disabled>
-                Отправить чек на проверку
+                Перейти в @virtualgucci_bot
             </button>
             
-            <div class="text-xs text-gray-400 mt-3">
-                После проверки баланс будет зачислен<br>в течение 5-30 минут
-            </div>
-        </div>
-    </div>
-
-    <!-- Модальное окно покупки -->
-    <div id="buyModal" class="modal">
-        <button class="close-btn" onclick="closeModal('buyModal')">×</button>
-        <div class="modal-content">
-            <h2 class="text-xl font-bold mb-1">🛒 Подтверждение</h2>
-            <p class="text-gray-400 text-sm mb-4" id="buyProductName">Товар</p>
-            
-            <div class="text-3xl font-bold gradient-text mb-4" id="buyProductPrice">0₽</div>
-            
-            <div class="text-sm text-gray-400 mb-4">
-                💳 Ваш баланс: <span id="buyModalBalance">0₽</span>
-            </div>
-            
-            <div id="insufficientFunds" class="hidden">
-                <div class="text-red-400 text-sm mb-3">❌ Недостаточно средств</div>
-                <button class="buy-btn add-balance-btn mb-2" onclick="closeModal('buyModal'); showAddBalance()">
-                    Пополнить баланс
-                </button>
-            </div>
-            
-            <button id="confirmBuyBtn" class="buy-btn" onclick="confirmPurchase()">
-                Подтвердить покупку
-            </button>
-            
-            <button onclick="closeModal('buyModal')" class="w-full py-3 mt-2 text-gray-400 hover:text-white text-sm">
-                Отмена
-            </button>
-        </div>
-    </div>
-
-    <!-- Модальное окно успешной покупки -->
-    <div id="successModal" class="modal">
-        <button class="close-btn" onclick="closeModal('successModal')">×</button>
-        <div class="modal-content">
-            <div class="text-5xl mb-4">✅</div>
-            <h2 class="text-xl font-bold mb-2">Покупка успешна!</h2>
-            <p class="text-gray-400 text-sm mb-4" id="successProductName">Товар куплен</p>
-            
-            <div class="text-sm text-gray-400 mb-4">
-                Файл будет отправлен вам в боте<br>
-                Нажмите кнопку ниже
-            </div>
-            
-            <button class="buy-btn" onclick="getFileFromBot()">
-                Получить файл в боте
+            <button onclick="closeModal()" class="w-full py-3 mt-3 text-gray-400 hover:text-white text-sm">
+                Закрыть
             </button>
         </div>
     </div>
@@ -724,14 +528,7 @@
         let tg = window.Telegram.WebApp;
         let currentUser = null;
         let currentCategory = 'all';
-        let selectedProduct = null;
-        let selectedPriceOption = null;
-        let userBalance = 0;
-        let selectedFile = null;
 
-        const BOT_USERNAME = 'voumy';
-        
-        // Товары
         const products = [
             { 
                 id: 'nagruz', 
@@ -754,10 +551,10 @@
                 category: 'triggerbot',
                 video: 'https://youtu.be/lxwfcZS4Ey8',
                 prices: [
-                    { label: '7 дней', price: 300, id: 'triggerbot_7d' },
-                    { label: '14 дней', price: 400, id: 'triggerbot_14d' },
-                    { label: '30 дней', price: 700, id: 'triggerbot_30d' },
-                    { label: 'Навсегда', price: 2500, id: 'triggerbot_perm' }
+                    { label: '7 дней', price: 300 },
+                    { label: '14 дней', price: 400 },
+                    { label: '30 дней', price: 700 },
+                    { label: 'Навсегда', price: 2500 }
                 ]
             },
             { 
@@ -810,34 +607,11 @@
             const displayName = currentUser.first_name + (currentUser.last_name ? ' ' + currentUser.last_name : '');
             document.getElementById('displayName').textContent = displayName;
             document.getElementById('userAvatar').textContent = currentUser.first_name.charAt(0).toUpperCase();
-            document.getElementById('userIdField').textContent = 'ID: ' + currentUser.id;
-            
-            // Запрашиваем баланс у бота
-            requestBalanceFromBot();
             
             document.getElementById('loadingView').classList.remove('active');
             document.getElementById('shopView').classList.add('active');
             
             renderProducts();
-        }
-
-        // ЗАПРОС БАЛАНСА У БОТА
-        function requestBalanceFromBot() {
-            const requestData = {
-                type: 'get_balance',
-                user_id: currentUser.id
-            };
-            tg.sendData(JSON.stringify(requestData));
-            
-            // Показываем загрузку
-            document.getElementById('userBalance').textContent = 'Загрузка...';
-        }
-
-        // ОБНОВЛЕНИЕ БАЛАНСА (вызывается при получении ответа от бота)
-        function updateBalanceDisplay(balance) {
-            userBalance = balance;
-            document.getElementById('userBalance').textContent = balance + '₽';
-            document.getElementById('buyModalBalance').textContent = balance + '₽';
         }
 
         function switchCategory(category, btn) {
@@ -867,8 +641,8 @@
             let priceHtml = '';
             if (product.prices) {
                 priceHtml = '<div class="mt-2">';
-                product.prices.forEach((p, idx) => {
-                    priceHtml += `<span class="price-option" onclick="selectPriceOption(this, '${product.id}', ${idx}, event)">${p.label}: ${p.price}₽</span>`;
+                product.prices.forEach((p) => {
+                    priceHtml += `<span class="price-option">${p.label}: ${p.price}₽</span>`;
                 });
                 priceHtml += '</div>';
             } else {
@@ -892,198 +666,22 @@
                 </div>
                 ${priceHtml}
                 ${videoHtml}
-                <button class="buy-btn" onclick="initiateBuy('${product.id}')">Купить</button>
+                <button class="buy-btn" onclick="showInstruction()">Купить</button>
             `;
             
             return div;
         }
 
-        function selectPriceOption(el, productId, idx, event) {
-            event.stopPropagation();
-            const card = el.closest('.product-card');
-            card.querySelectorAll('.price-option').forEach(opt => opt.classList.remove('selected'));
-            el.classList.add('selected');
-            selectedPriceOption = { productId, idx };
+        function showInstruction() {
+            document.getElementById('instructionModal').classList.add('active');
         }
 
-        function initiateBuy(productId) {
-            const product = products.find(p => p.id === productId);
-            if (!product) return;
-            
-            selectedProduct = product;
-            let price = 0;
-            let displayName = product.name;
-            
-            if (product.prices) {
-                if (selectedPriceOption && selectedPriceOption.productId === productId) {
-                    const opt = product.prices[selectedPriceOption.idx];
-                    price = opt.price;
-                    displayName += ` (${opt.label})`;
-                    selectedProduct.actualId = opt.id;
-                } else {
-                    price = product.prices[0].price;
-                    displayName += ` (${product.prices[0].label})`;
-                    selectedProduct.actualId = product.prices[0].id;
-                }
-            } else {
-                price = product.price;
-                selectedProduct.actualId = product.id;
-            }
-            
-            selectedProduct.finalPrice = price;
-            selectedProduct.finalName = displayName;
-            
-            showBuyModal(displayName, price);
+        function openBot() {
+            tg.openTelegramLink('https://t.me/virtualgucci_bot');
         }
 
-        function showBuyModal(name, price) {
-            document.getElementById('buyProductName').textContent = name;
-            document.getElementById('buyProductPrice').textContent = price + '₽';
-            document.getElementById('buyModalBalance').textContent = userBalance + '₽';
-            
-            const insufficient = price > userBalance;
-            document.getElementById('insufficientFunds').classList.toggle('hidden', !insufficient);
-            document.getElementById('confirmBuyBtn').classList.toggle('hidden', insufficient);
-            
-            document.getElementById('buyModal').classList.add('active');
-        }
-
-        function confirmPurchase() {
-            if (!selectedProduct || userBalance < selectedProduct.finalPrice) return;
-            
-            // Отправляем запрос на покупку боту
-            const purchaseData = {
-                type: 'purchase',
-                user_id: currentUser.id,
-                username: currentUser.username,
-                product_id: selectedProduct.actualId,
-                product_name: selectedProduct.finalName,
-                price: selectedProduct.finalPrice
-            };
-            
-            tg.sendData(JSON.stringify(purchaseData));
-            
-            closeModal('buyModal');
-            document.getElementById('successProductName').textContent = selectedProduct.finalName;
-            document.getElementById('successModal').classList.add('active');
-        }
-
-        function showAddBalance() {
-            document.getElementById('balanceModal').classList.add('active');
-            selectedFile = null;
-            resetUploadArea();
-        }
-
-        function handleFileSelect(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            
-            if (!file.type.startsWith('image/')) {
-                showUploadStatus('Пожалуйста, выберите изображение', 'error');
-                return;
-            }
-            
-            if (file.size > 10 * 1024 * 1024) {
-                showUploadStatus('Файл слишком большой (макс. 10MB)', 'error');
-                return;
-            }
-            
-            selectedFile = file;
-            
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const preview = document.getElementById('filePreview');
-                preview.src = e.target.result;
-                preview.classList.remove('hidden');
-                
-                document.getElementById('fileName').textContent = file.name;
-                document.getElementById('fileName').classList.remove('hidden');
-                
-                document.getElementById('uploadArea').classList.add('has-file');
-                document.querySelector('.file-upload-text').textContent = 'Чек выбран';
-                document.querySelector('.file-upload-hint').textContent = 'Нажмите "Отправить чек на проверку"';
-                
-                document.getElementById('sendCheckBtn').disabled = false;
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function resetUploadArea() {
-            document.getElementById('filePreview').classList.add('hidden');
-            document.getElementById('fileName').classList.add('hidden');
-            document.getElementById('uploadArea').classList.remove('has-file');
-            document.querySelector('.file-upload-text').textContent = 'Нажмите чтобы выбрать чек';
-            document.querySelector('.file-upload-hint').textContent = 'JPG, PNG до 10MB';
-            document.getElementById('sendCheckBtn').disabled = true;
-            document.getElementById('uploadStatus').className = 'upload-status';
-            document.getElementById('uploadStatus').textContent = '';
-            document.getElementById('fileInput').value = '';
-        }
-
-        function showUploadStatus(text, type) {
-            const status = document.getElementById('uploadStatus');
-            status.textContent = text;
-            status.className = 'upload-status ' + type;
-        }
-
-        function sendCheckToBot() {
-            if (!selectedFile) return;
-            
-            const btn = document.getElementById('sendCheckBtn');
-            btn.disabled = true;
-            showUploadStatus('Отправка...', 'loading');
-            
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const base64Data = e.target.result;
-                
-                const checkData = {
-                    type: 'check_upload',
-                    user_id: currentUser.id,
-                    username: currentUser.username || 'нет',
-                    filename: selectedFile.name,
-                    file_data: base64Data,
-                    comment: 'Пополнение баланса'
-                };
-                
-                try {
-                    tg.sendData(JSON.stringify(checkData));
-                    showUploadStatus('✅ Чек отправлен! Ожидайте зачисления.', 'success');
-                    
-                    setTimeout(() => {
-                        closeModal('balanceModal');
-                        resetUploadArea();
-                    }, 2000);
-                } catch (err) {
-                    showUploadStatus('❌ Ошибка отправки', 'error');
-                    btn.disabled = false;
-                }
-            };
-            reader.readAsDataURL(selectedFile);
-        }
-
-        function getFileFromBot() {
-            const requestData = {
-                type: 'get_file',
-                user_id: currentUser.id,
-                product_id: selectedProduct?.actualId || ''
-            };
-            
-            tg.sendData(JSON.stringify(requestData));
-            closeModal('successModal');
-        }
-
-        function copyToClipboard(text) {
-            navigator.clipboard.writeText(text);
-            tg.showAlert('Скопировано: ' + text);
-        }
-
-        function copyUserId() {
-            copyToClipboard(currentUser.id.toString());
-        }
-
-        function closeModal(modalId) {
-            document.getElementById(modalId).classList.remove('active');
+        function closeModal() {
+            document.getElementById('instructionModal').classList.remove('active');
         }
 
         function openSupport() {
