@@ -8,26 +8,24 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        * { 
-            font-family: 'Inter', sans-serif; 
-            margin: 0; 
-            padding: 0; 
-            box-sizing: border-box; 
+        * {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
         
-        body { 
-            background: #050505; 
-            color: #f8fafc; 
-            min-height: 100vh; 
-            overflow-x: hidden;
+        body {
+            background: #050505;
+            color: #f8fafc;
+            min-height: 100vh;
         }
 
-        /* Бесконечный фон сетка */
-        .grid-bg { 
+        .grid-bg {
             background-image: 
-                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-            background-size: 60px 60px;
+                linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
             position: fixed;
             top: 0;
             left: 0;
@@ -35,38 +33,32 @@
             bottom: 0;
             pointer-events: none;
             z-index: 1;
-            animation: gridScroll 8s linear infinite;
-        }
-
-        @keyframes gridScroll {
-            0% { transform: translate(0, 0); }
-            100% { transform: translate(60px, 60px); }
         }
 
         .glow-bg {
             position: fixed;
-            width: 1000px;
-            height: 1000px;
+            width: 800px;
+            height: 800px;
             background: radial-gradient(circle, rgba(255, 107, 157, 0.12) 0%, transparent 60%);
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             pointer-events: none;
             z-index: 0;
-            animation: pulseGlow 6s ease-in-out infinite;
+            animation: pulse-glow 4s ease-in-out infinite;
         }
 
-        @keyframes pulseGlow {
-            0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; }
-            50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.9; }
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 0.8; transform: translate(-50%, -50%) scale(1.1); }
         }
 
         .glass-panel {
-            background: rgba(20, 20, 20, 0.7);
+            background: rgba(20, 20, 20, 0.6);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
 
         .view {
@@ -75,7 +67,7 @@
             overflow-y: auto;
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.3s ease;
+            transition: opacity 0.4s ease;
             z-index: 10;
             background: transparent;
         }
@@ -83,6 +75,57 @@
         .view.active {
             opacity: 1;
             pointer-events: all;
+        }
+
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .auth-box {
+            width: 100%;
+            max-width: 440px;
+            animation: slideUp 0.5s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
         .user-badge {
@@ -94,92 +137,83 @@
             border-radius: 50px;
             border: 1px solid rgba(255, 107, 157, 0.2);
             font-weight: 600;
-            animation: slideDown 0.5s ease;
+            animation: fadeIn 0.6s ease;
         }
 
-        @keyframes slideDown {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .balance-card {
-            background: linear-gradient(135deg, rgba(255,107,157,0.2), rgba(196,69,105,0.2));
-            border: 1px solid rgba(255,107,157,0.3);
-            border-radius: 16px;
-            padding: 20px;
-            text-align: center;
-            margin-bottom: 20px;
-            animation: scaleIn 0.5s ease 0.1s both;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .balance-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 40px rgba(255, 107, 157, 0.2);
-        }
-
-        @keyframes scaleIn {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
-        }
-
-        .balance-amount {
-            font-size: 32px;
-            font-weight: 800;
+        .price-tag {
+            font-size: 20px;
+            font-weight: 700;
             color: #ff6b9d;
         }
 
-        .tabs-wrapper {
-            width: 100%;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-            margin-bottom: 20px;
-            animation: slideUp 0.5s ease 0.2s both;
+        .gradient-text {
+            background: linear-gradient(135deg, #ff6b9d, #c44569);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
-        .tabs-wrapper::-webkit-scrollbar {
+        /* ИСПРАВЛЕННЫЕ ВКЛАДКИ */
+        .tabs-wrapper {
+            position: relative;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 16px;
+            padding: 4px;
+        }
+
+        .tabs-container {
+            display: flex;
+            gap: 4px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
+            padding: 4px;
+        }
+
+        .tabs-container::-webkit-scrollbar {
             display: none;
         }
 
-        .tab-container {
-            display: flex;
-            gap: 8px;
-            padding: 4px;
-            width: max-content;
-            min-width: 100%;
-        }
-
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .category-tab {
+        .tab-btn {
+            position: relative;
             padding: 10px 16px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: transparent;
+            border: none;
             border-radius: 12px;
             color: #94a3b8;
             cursor: pointer;
             font-weight: 600;
-            transition: all 0.3s ease;
-            white-space: nowrap;
             font-size: 13px;
-            flex-shrink: 0;
+            white-space: nowrap;
+            transition: all 0.25s ease;
+            z-index: 2;
         }
 
-        .category-tab:hover {
-            background: rgba(255, 107, 157, 0.1);
-            border-color: rgba(255, 107, 157, 0.3);
-            transform: translateY(-2px);
+        .tab-btn:hover {
+            color: #e2e8f0;
+            background: rgba(255, 255, 255, 0.05);
         }
 
-        .category-tab.active {
-            background: linear-gradient(135deg, #ff6b9d, #c44569);
+        .tab-btn.active {
             color: white;
-            border-color: transparent;
+            background: linear-gradient(135deg, #ff6b9d, #c44569);
+            box-shadow: 0 4px 15px rgba(255, 107, 157, 0.3);
+        }
+
+        /* Индикатор активной вкладки (полоска снизу) */
+        .tab-indicator {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #ff6b9d, #c44569);
+            border-radius: 3px 3px 0 0;
+            transition: all 0.3s ease;
+            opacity: 0;
+        }
+
+        .tab-btn.active .tab-indicator {
+            opacity: 1;
         }
 
         .product-card {
@@ -189,18 +223,13 @@
             padding: 20px;
             margin-bottom: 16px;
             transition: all 0.3s ease;
-            animation: fadeInUp 0.5s ease both;
+            animation: scaleIn 0.4s ease;
         }
 
         .product-card:hover {
             border-color: #ff6b9d;
             transform: translateY(-4px);
-            box-shadow: 0 20px 40px rgba(255, 107, 157, 0.15);
-        }
-
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
+            box-shadow: 0 10px 30px rgba(255, 107, 157, 0.2);
         }
 
         .buy-btn {
@@ -215,6 +244,8 @@
             font-size: 15px;
             transition: all 0.3s ease;
             margin-top: 12px;
+            position: relative;
+            overflow: hidden;
         }
 
         .buy-btn:hover {
@@ -222,10 +253,8 @@
             box-shadow: 0 8px 25px rgba(255, 107, 157, 0.4);
         }
 
-        .price-tag {
-            font-size: 20px;
-            font-weight: 700;
-            color: #ff6b9d;
+        .buy-btn:active {
+            transform: scale(0.98);
         }
 
         .price-option {
@@ -238,6 +267,47 @@
             color: #ff6b9d;
             margin-right: 6px;
             margin-bottom: 6px;
+            transition: all 0.2s;
+        }
+
+        .price-option:hover {
+            background: rgba(255, 107, 157, 0.2);
+            transform: scale(1.05);
+        }
+
+        .support-card {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .support-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255, 107, 157, 0.2);
+            border-color: rgba(255, 107, 157, 0.4);
+        }
+
+        .tg-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff6b9d, #c44569);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+            animation: pulse-avatar 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-avatar {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(255, 107, 157, 0.4); }
+            50% { box-shadow: 0 0 0 10px rgba(255, 107, 157, 0); }
+        }
+
+        .shop-header {
+            text-align: center;
+            margin-bottom: 24px;
+            animation: fadeIn 0.6s ease;
         }
 
         .video-link {
@@ -257,121 +327,299 @@
 
         .video-link:hover {
             background: rgba(255, 107, 157, 0.1);
-            transform: translateX(5px);
+            border-color: rgba(255, 107, 157, 0.3);
+            transform: translateX(4px);
         }
 
-        .product-card:nth-child(1) { animation-delay: 0.1s; }
-        .product-card:nth-child(2) { animation-delay: 0.15s; }
-        .product-card:nth-child(3) { animation-delay: 0.2s; }
-        .product-card:nth-child(4) { animation-delay: 0.25s; }
-        .product-card:nth-child(5) { animation-delay: 0.3s; }
-        .product-card:nth-child(6) { animation-delay: 0.35s; }
-        .product-card:nth-child(7) { animation-delay: 0.4s; }
-
-        .tg-avatar {
-            animation: avatarPulse 2s infinite;
-        }
-
-        @keyframes avatarPulse {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(255, 107, 157, 0.4); }
-            50% { box-shadow: 0 0 0 10px rgba(255, 107, 157, 0); }
-        }
-
-        .notification {
+        .modal {
             position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%) translateY(-100px);
+            inset: 0;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-content {
             background: rgba(20, 20, 20, 0.95);
             border: 1px solid rgba(255, 107, 157, 0.3);
-            border-radius: 12px;
-            padding: 16px 24px;
-            z-index: 200;
-            transition: transform 0.3s ease;
-            max-width: 90%;
+            border-radius: 24px;
+            padding: 28px;
+            width: 100%;
+            max-width: 360px;
             text-align: center;
+            transform: scale(0.9) translateY(20px);
+            transition: transform 0.3s ease;
         }
 
-        .notification.show {
-            transform: translateX(-50%) translateY(0);
+        .modal.active .modal-content {
+            transform: scale(1) translateY(0);
         }
 
-        .notification.success {
-            border-color: rgba(34, 197, 94, 0.3);
-            color: #22c55e;
-        }
-
-        .notification.error {
-            border-color: rgba(239, 68, 68, 0.3);
-            color: #ef4444;
-        }
-
-        .bot-link-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 12px 24px;
-            background: linear-gradient(135deg, #3b82f6, #2563eb);
+        .close-btn {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 36px;
+            height: 36px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 50%;
             color: white;
-            border-radius: 10px;
-            text-decoration: none;
-            font-weight: 600;
-            margin-top: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
             transition: all 0.3s ease;
         }
 
+        .close-btn:hover {
+            background: rgba(255, 107, 157, 0.3);
+            transform: rotate(90deg);
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            border: 1px solid rgba(34, 197, 94, 0.2);
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            background: #22c55e;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+
+        .instruction-box {
+            background: rgba(255, 107, 157, 0.05);
+            border: 1px solid rgba(255, 107, 157, 0.2);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .instruction-title {
+            font-weight: 700;
+            color: #ff6b9d;
+            margin-bottom: 16px;
+            font-size: 16px;
+            text-align: center;
+        }
+
+        .instruction-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 16px;
+            font-size: 14px;
+            color: #e2e8f0;
+            line-height: 1.5;
+            opacity: 0;
+            animation: slideInLeft 0.4s ease forwards;
+        }
+
+        .instruction-step:nth-child(2) { animation-delay: 0.1s; }
+        .instruction-step:nth-child(3) { animation-delay: 0.2s; }
+        .instruction-step:nth-child(4) { animation-delay: 0.3s; }
+        .instruction-step:nth-child(5) { animation-delay: 0.4s; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .step-number {
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, #ff6b9d, #c44569);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .bot-link-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
         .bot-link-btn:hover {
-            transform: scale(1.05);
+            transform: scale(1.02);
             box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+        }
+
+        .bot-username {
+            font-family: monospace;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        /* Фикс для блока поддержки - без анимации тряски */
+        .support-section {
+            position: relative;
         }
     </style>
 </head>
 <body>
+
     <div class="glow-bg"></div>
     <div class="grid-bg"></div>
 
-    <div id="notification" class="notification"></div>
+    <div id="loadingView" class="view active">
+        <div class="auth-container">
+            <div class="auth-box text-center">
+                <div class="glass-panel rounded-3xl p-8">
+                    <div class="loading-spinner mb-4" style="width: 40px; height: 40px; border-width: 4px;"></div>
+                    <h2 class="text-xl font-bold mb-2">Подключение...</h2>
+                    <p class="text-gray-500">Ожидание данных Telegram</p>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <!-- Main Shop View -->
-    <div id="shopView" class="view active">
+    <div id="shopView" class="view">
         <div class="relative z-10 max-w-md mx-auto p-4">
-            <div class="text-center mb-4">
-                <h1 class="text-2xl font-bold bg-gradient-to-r from-pink-400 to-pink-600 bg-clip-text text-transparent">Virtual Store</h1>
+            
+            <div class="shop-header">
+                <h1 class="text-2xl font-bold">Virtual Store</h1>
             </div>
 
             <div class="flex justify-center mb-4">
                 <div class="user-badge">
-                    <div id="userAvatar" class="tg-avatar w-8 h-8 rounded-full bg-gradient-to-br from-pink-400 to-pink-600 flex items-center justify-center font-bold text-sm">?</div>
-                    <div id="displayName" class="text-sm">user$</div>
+                    <div class="tg-avatar" id="userAvatar">?</div>
+                    <div class="text-sm" id="displayName">guest</div>
                 </div>
             </div>
 
-            <!-- Balance Card -->
-            <div class="balance-card">
-                <div class="text-sm text-gray-400 mb-1">Ваш баланс</div>
-                <div class="balance-amount" id="balanceAmount">0 ₽</div>
-                <p class="text-xs text-gray-500 mt-2">Для покупки напишите боту @virtualgucci_bot</p>
-                <a href="https://t.me/virtualgucci_bot" target="_blank" class="bot-link-btn">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
-                    </svg>
-                    Открыть бота
-                </a>
+            <div class="glass-panel rounded-2xl p-5 mb-4 support-section">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h2 class="text-lg font-bold mb-1">Virtual Store</h2>
+                        <div class="status-badge">
+                            <span class="status-dot"></span>
+                            <span>Online</span>
+                        </div>
+                    </div>
+                    <div class="text-right text-xs text-gray-400">
+                        <div>10.03.2026</div>
+                    </div>
+                </div>
+
+                <div class="support-card glass-panel rounded-xl p-4 border border-pink-500/30 bg-pink-500/5" onclick="openSupport()">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="text-sm font-bold text-pink-400 mb-1">Поддержка</div>
+                            <div class="text-xs text-gray-400">Нажми чтобы написать @voumy</div>
+                        </div>
+                        <svg class="w-6 h-6 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                        </svg>
+                    </div>
+                </div>
             </div>
 
-            <!-- Tabs -->
+            <!-- ИСПРАВЛЕННЫЕ ВКЛАДКИ -->
             <div class="tabs-wrapper">
-                <div class="tab-container">
-                    <button class="category-tab active" onclick="switchCategory('all', this)">Все товары</button>
-                    <button class="category-tab" onclick="switchCategory('triggerbot', this)">Триггербот</button>
-                    <button class="category-tab" onclick="switchCategory('scripts', this)">Скрипты</button>
-                    <button class="category-tab" onclick="switchCategory('redux', this)">Редуксы</button>
-                    <button class="category-tab" onclick="switchCategory('packs', this)">Паки</button>
-                    <button class="category-tab" onclick="switchCategory('utility', this)">Утилиты</button>
+                <div class="tabs-container" id="tabsContainer">
+                    <button class="tab-btn active" data-category="all">Все</button>
+                    <button class="tab-btn" data-category="triggerbot">Триггер</button>
+                    <button class="tab-btn" data-category="scripts">Скрипты</button>
+                    <button class="tab-btn" data-category="redux">Редуксы</button>
+                    <button class="tab-btn" data-category="packs">Паки</button>
+                    <button class="tab-btn" data-category="utility">Утилиты</button>
                 </div>
             </div>
 
             <div id="productsGrid"></div>
+
+        </div>
+    </div>
+
+    <!-- Модальное окно инструкции -->
+    <div id="instructionModal" class="modal">
+        <button class="close-btn" onclick="closeModal()">×</button>
+        <div class="modal-content">
+            <h2 class="text-2xl font-bold mb-1">🛒 Как купить</h2>
+            <p class="text-gray-400 text-sm mb-4">Следуйте инструкции ниже</p>
+            
+            <div class="instruction-box">
+                <div class="instruction-title">📋 Инструкция по покупке</div>
+                
+                <div class="instruction-step">
+                    <div class="step-number">1</div>
+                    <div>Перейдите в бот <span class="bot-username">@virtualgucci_bot</span></div>
+                </div>
+                
+                <div class="instruction-step">
+                    <div class="step-number">2</div>
+                    <div>Напишите команду <span class="bot-username">/start</span></div>
+                </div>
+                
+                <div class="instruction-step">
+                    <div class="step-number">3</div>
+                    <div>Нажмите <b>«Пополнить баланс»</b> и следуйте инструкциям для пополнения</div>
+                </div>
+                
+                <div class="instruction-step">
+                    <div class="step-number">4</div>
+                    <div>После пополнения нажмите <b>«Товары»</b> и выберите нужный товар для покупки</div>
+                </div>
+            </div>
+
+            <button class="bot-link-btn" onclick="openBot()">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                </svg>
+                Перейти в @virtualgucci_bot
+            </button>
+            
+            <button onclick="closeModal()" class="w-full py-3 mt-3 text-gray-400 hover:text-white text-sm transition-colors">
+                Закрыть
+            </button>
         </div>
     </div>
 
@@ -381,13 +629,46 @@
         let currentCategory = 'all';
 
         const products = [
-            { id: 'nagruz', name: 'Нагруз', category: 'scripts', price: 370, video: 'https://www.tiktok.com/t/ZThv9Vhnq/' },
-            { id: 'antitp', name: 'Анти-ТП', category: 'scripts', price: 370 },
-            { id: 'rega', name: 'Рега', category: 'scripts', price: 370, video: 'https://www.tiktok.com/t/ZThv9Vhnq/' },
+            { 
+                id: 'nagruz', 
+                name: 'Нагруз', 
+                category: 'scripts', 
+                price: 370,
+                image: 'nagruz.jpg',
+                video: 'https://www.tiktok.com/t/ZThv9Vhnq/'
+            },
+            { 
+                id: 'dobby', 
+                name: 'DOBBY ( интеренет )', 
+                category: 'scripts', 
+                price: 370,
+                video: null
+            },
+            { 
+                id: 'exm', 
+                name: 'EXM ( fps ) и винда настрйка', 
+                category: 'scripts', 
+                price: 370,
+                video: null
+            },
+            { 
+                id: 'antitp', 
+                name: 'Анти-ТП', 
+                category: 'scripts', 
+                price: 370,
+                video: null
+            },
+            { 
+                id: 'rega', 
+                name: 'Рега', 
+                category: 'scripts', 
+                price: 370,
+                video: 'https://www.tiktok.com/t/ZThv9Vhnq/'
+            },
             { 
                 id: 'triggerbot', 
                 name: 'Триггербот', 
-                category: 'triggerbot', 
+                category: 'triggerbot',
                 video: 'https://youtu.be/lxwfcZS4Ey8',
                 prices: [
                     { label: '7 дней', price: 300 },
@@ -396,10 +677,41 @@
                     { label: 'Навсегда', price: 2500 }
                 ]
             },
-            { id: 'pack', name: 'Пак (Нагруз + Анти-ТП + Рега)', category: 'packs', price: 570, video: 'https://youtu.be/YzmVadod_qg' },
-            { id: 'cleaner', name: 'Батники для очистки читов', category: 'utility', price: 370, video: 'https://youtu.be/Fozc1P_tUPk' },
-            { id: 'hide', name: 'Прятка чита (все виды)', category: 'utility', price: 444 },
-            { id: 'fastreload', name: 'Фаст Релоад Редукс', category: 'redux', price: 370, video: 'https://youtu.be/35bH6DZP-i0' }
+            { 
+                id: 'pack', 
+                name: 'Пак (Нагруз + Анти-ТП + Рега)', 
+                category: 'packs', 
+                price: 570,
+                video: 'https://youtu.be/YzmVadod_qg'
+            },
+            { 
+                id: 'cleaner', 
+                name: 'Батники для очистки читов', 
+                category: 'utility', 
+                price: 370,
+                video: 'https://youtu.be/Fozc1P_tUPk'
+            },
+            { 
+                id: 'hide', 
+                name: 'Прятка чита (все виды)', 
+                category: 'utility', 
+                price: 444,
+                video: null
+            },
+            { 
+                id: 'fastreload', 
+                name: 'Фаст Релоад Редукс', 
+                category: 'redux', 
+                price: 370,
+                video: 'https://youtu.be/35bH6DZP-i0'
+            },
+            { 
+                id: 'reduxtp', 
+                name: 'Редукс с ТП', 
+                category: 'redux', 
+                price: 370,
+                video: 'https://www.youtube.com/watch?v=vWboukNBOOo'
+            }
         ];
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -408,40 +720,44 @@
             
             if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
                 currentUser = tg.initDataUnsafe.user;
+                initApp();
             } else {
-                currentUser = { id: 0, first_name: 'user$', username: 'user$' };
+                setTimeout(() => {
+                    currentUser = { first_name: 'Test', id: 123456, username: 'testuser' };
+                    initApp();
+                }, 1000);
             }
-            
-            initApp();
+
+            // Настройка вкладок
+            setupTabs();
         });
 
-        function initApp() {
-            const displayName = currentUser.first_name || 'user$';
-            const avatarLetter = (currentUser.first_name || 'U').charAt(0).toUpperCase();
+        function setupTabs() {
+            const tabs = document.querySelectorAll('.tab-btn');
             
-            document.getElementById('displayName').textContent = displayName;
-            document.getElementById('userAvatar').textContent = avatarLetter;
-            
-            renderProducts();
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Убираем active у всех
+                    tabs.forEach(t => t.classList.remove('active'));
+                    // Добавляем active кликнутому
+                    this.classList.add('active');
+                    
+                    // Меняем категорию
+                    currentCategory = this.dataset.category;
+                    renderProducts();
+                });
+            });
         }
 
-        function switchCategory(category, btn) {
-            currentCategory = category;
+        function initApp() {
+            const displayName = currentUser.first_name + (currentUser.last_name ? ' ' + currentUser.last_name : '');
+            document.getElementById('displayName').textContent = displayName;
+            document.getElementById('userAvatar').textContent = currentUser.first_name.charAt(0).toUpperCase();
             
-            document.querySelectorAll('.category-tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
+            document.getElementById('loadingView').classList.remove('active');
+            document.getElementById('shopView').classList.add('active');
             
-            btn.classList.add('active');
-            
-            const grid = document.getElementById('productsGrid');
-            grid.style.opacity = '0';
-            
-            setTimeout(() => {
-                renderProducts();
-                grid.style.transition = 'opacity 0.3s ease';
-                grid.style.opacity = '1';
-            }, 200);
+            renderProducts();
         }
 
         function renderProducts() {
@@ -453,9 +769,9 @@
                 : products.filter(p => p.category === currentCategory);
             
             filtered.forEach((product, index) => {
-                setTimeout(() => {
-                    grid.appendChild(createProductCard(product));
-                }, index * 50);
+                const card = createProductCard(product);
+                card.style.animationDelay = `${index * 0.1}s`;
+                grid.appendChild(card);
             });
         }
 
@@ -464,18 +780,26 @@
             div.className = 'product-card';
             
             let priceHtml = '';
-            
             if (product.prices) {
-                priceHtml = '<div class="mt-2 flex flex-wrap">';
+                priceHtml = '<div class="mt-2">';
                 product.prices.forEach((p) => {
                     priceHtml += `<span class="price-option">${p.label}: ${p.price}₽</span>`;
                 });
                 priceHtml += '</div>';
             } else {
-                priceHtml = `<div class="price-tag mt-1">${product.price} ₽</div>`;
+                priceHtml = `<div class="price-tag mt-1">${product.price}₽</div>`;
             }
 
-            let videoHtml = product.video ? `<a href="${product.video}" target="_blank" class="video-link" onclick="event.stopPropagation()"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Видео</a>` : '';
+            let videoHtml = '';
+            if (product.video) {
+                videoHtml = `<a href="${product.video}" target="_blank" class="video-link" onclick="event.stopPropagation()">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Видео
+                </a>`;
+            }
             
             div.innerHTML = `
                 <div class="flex justify-between items-start">
@@ -483,25 +807,26 @@
                 </div>
                 ${priceHtml}
                 ${videoHtml}
-                <button class="buy-btn" onclick="openBot()">Купить в боте</button>
+                <button class="buy-btn" onclick="showInstruction()">Купить</button>
             `;
             
             return div;
+        }
+
+        function showInstruction() {
+            document.getElementById('instructionModal').classList.add('active');
         }
 
         function openBot() {
             tg.openTelegramLink('https://t.me/virtualgucci_bot');
         }
 
-        function showNotification(text, type) {
-            const notif = document.getElementById('notification');
-            notif.textContent = text;
-            notif.className = `notification ${type}`;
-            notif.classList.add('show');
-            
-            setTimeout(() => {
-                notif.classList.remove('show');
-            }, 3000);
+        function closeModal() {
+            document.getElementById('instructionModal').classList.remove('active');
+        }
+
+        function openSupport() {
+            tg.openTelegramLink('https://t.me/voumy');
         }
     </script>
 </body>
