@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -164,7 +165,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* ИСПРАВЛЕННЫЕ СТИЛИ ВКЛАДОК */
         .tabs-wrapper {
             width: 100%;
             overflow-x: auto;
@@ -580,11 +580,42 @@
             0%, 100% { box-shadow: 0 0 0 0 rgba(255, 107, 157, 0.4); }
             50% { box-shadow: 0 0 0 10px rgba(255, 107, 157, 0); }
         }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: rgba(20, 20, 20, 0.95);
+            border: 1px solid rgba(255, 107, 157, 0.3);
+            border-radius: 12px;
+            padding: 16px 24px;
+            z-index: 200;
+            transition: transform 0.3s ease;
+            max-width: 90%;
+            text-align: center;
+        }
+
+        .notification.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .notification.success {
+            border-color: rgba(34, 197, 94, 0.3);
+            color: #22c55e;
+        }
+
+        .notification.error {
+            border-color: rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+        }
     </style>
 </head>
 <body>
     <div class="glow-bg"></div>
     <div class="grid-bg"></div>
+
+    <div id="notification" class="notification"></div>
 
     <!-- Loading View -->
     <div id="loadingView" class="view active">
@@ -620,7 +651,7 @@
                 </button>
             </div>
 
-            <!-- ИСПРАВЛЕННЫЕ ВКЛАДКИ -->
+            <!-- Tabs -->
             <div class="tabs-wrapper">
                 <div class="tab-container">
                     <button class="category-tab active" onclick="switchCategory('all', this)">Все товары</button>
@@ -698,6 +729,7 @@
         let currentUser = null;
         let currentCategory = 'all';
         let userBalance = 0;
+        let userPurchases = [];
         let selectedFile = null;
         let selectedProduct = null;
         let selectedPriceOption = null;
@@ -728,23 +760,73 @@
             tg.ready();
             tg.expand();
             
+            // Обработка ответов от бота
+            tg.onEvent('webAppDataReceived', handleBotResponse);
+            
             if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
                 currentUser = tg.initDataUnsafe.user;
-                document.getElementById('loadingText').textContent = 'Авторизация...';
+                document.getElementById('loadingText').textContent = 'Получение данных...';
+                requestBalance();
             } else {
                 currentUser = { id: 0, first_name: 'user$', username: 'user$' };
                 document.getElementById('loadingText').textContent = 'Демо режим';
+                setTimeout(initApp, 800);
             }
-            
-            setTimeout(() => {
-                loadBalance();
-            }, 800);
         });
 
-        function loadBalance() {
-            userBalance = 0;
-            updateBalanceDisplay();
-            initApp();
+        function requestBalance() {
+            // Запрашиваем баланс у бота
+            tg.sendData(JSON.stringify({
+                action: 'get_balance',
+                user_id: currentUser.id
+            }));
+        }
+
+        function handleBotResponse(event) {
+            try {
+                const data = JSON.parse(event.data);
+                
+                switch(data.action) {
+                    case 'balance_response':
+                        userBalance = data.balance || 0;
+                        userPurchases = data.purchases || [];
+                        updateBalanceDisplay();
+                        initApp();
+                        break;
+                        
+                    case 'purchase_success':
+                        userBalance = data.new_balance;
+                        updateBalanceDisplay();
+                        showNotification(`✅ Куплено: ${data.product_name}`, 'success');
+                        renderProducts();
+                        break;
+                        
+                    case 'purchase_failed':
+                        showNotification('❌ Недостаточно средств!', 'error');
+                        break;
+                        
+                    case 'deposit_received':
+                        showNotification('✅ Чек получен! Ожидайте зачисления', 'success');
+                        break;
+                        
+                    case 'error':
+                        showNotification('❌ Ошибка: ' + data.message, 'error');
+                        break;
+                }
+            } catch(e) {
+                console.error('Error parsing bot response:', e);
+            }
+        }
+
+        function showNotification(text, type) {
+            const notif = document.getElementById('notification');
+            notif.textContent = text;
+            notif.className = `notification ${type}`;
+            notif.classList.add('show');
+            
+            setTimeout(() => {
+                notif.classList.remove('show');
+            }, 3000);
         }
 
         function initApp() {
@@ -817,6 +899,7 @@
             
             let priceHtml = '';
             let canAfford = false;
+            let isPurchased = userPurchases.some(p => p.product === product.id);
             
             if (product.prices) {
                 const minPrice = Math.min(...product.prices.map(p => p.price));
@@ -833,12 +916,13 @@
 
             let videoHtml = product.video ? `<a href="${product.video}" target="_blank" class="video-link" onclick="event.stopPropagation()"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Видео</a>` : '';
             
-            const btnText = canAfford ? 'Купить' : 'Недостаточно средств';
-            const btnDisabled = !canAfford;
+            let btnText = isPurchased ? '✓ Куплено' : (canAfford ? 'Купить' : 'Недостаточно средств');
+            let btnDisabled = !canAfford || isPurchased;
             
             div.innerHTML = `
                 <div class="flex justify-between items-start">
                     <h3 class="text-base font-bold">${product.name}</h3>
+                    ${isPurchased ? '<span class="text-green-400 text-xs">✓ Есть</span>' : ''}
                 </div>
                 ${priceHtml}
                 ${videoHtml}
@@ -878,24 +962,22 @@
             reader.onload = function(e) {
                 const base64data = e.target.result;
                 
-                if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-                    tg.sendData(JSON.stringify({
-                        action: 'deposit_request',
-                        user_id: currentUser.id,
-                        username: currentUser.username,
-                        first_name: currentUser.first_name,
-                        screenshot: base64data,
-                        filename: selectedFile.name
-                    }));
-                }
+                tg.sendData(JSON.stringify({
+                    action: 'deposit_request',
+                    user_id: currentUser.id,
+                    username: currentUser.username,
+                    first_name: currentUser.first_name,
+                    screenshot: base64data,
+                    filename: selectedFile.name
+                }));
                 
-                document.getElementById('uploadStatus').innerHTML = '<div class="success-message">✓ Скриншот отправлен!<br>Ожидайте зачисления.</div>';
+                document.getElementById('uploadStatus').innerHTML = '<div class="success-message">✓ Отправлено!</div>';
                 
                 setTimeout(() => {
                     closeModal('addBalanceModal');
                     btn.textContent = 'Отправить на проверку';
                     btn.disabled = false;
-                }, 2000);
+                }, 1500);
             };
             reader.readAsDataURL(selectedFile);
         }
@@ -953,26 +1035,19 @@
             btn.disabled = true;
             btn.innerHTML = '<span class="loading-spinner" style="width: 16px; height: 16px; border-width: 2px; vertical-align: middle; margin-right: 8px;"></span>Обработка...';
             
-            if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-                tg.sendData(JSON.stringify({
-                    action: 'buy_product',
-                    user_id: currentUser.id,
-                    product_id: selectedProduct.id,
-                    product_name: selectedProduct.name,
-                    price: finalPrice,
-                    price_option: selectedPriceOption ? selectedPriceOption.idx : null
-                }));
-            }
-            
-            document.getElementById('buyStatus').innerHTML = '<div class="success-message">✓ Заказ создан!<br>Проверьте бота.</div>';
+            tg.sendData(JSON.stringify({
+                action: 'buy_product',
+                user_id: currentUser.id,
+                product_id: selectedProduct.id,
+                product_name: selectedProduct.name,
+                price: finalPrice,
+                price_option: selectedPriceOption ? selectedPriceOption.idx : null
+            }));
             
             setTimeout(() => {
                 closeModal('buyModal');
                 btn.textContent = 'Подтвердить покупку';
                 btn.disabled = false;
-                userBalance -= finalPrice;
-                updateBalanceDisplay();
-                renderProducts();
             }, 2000);
         }
 
@@ -995,4 +1070,3 @@
     </script>
 </body>
 </html>
-
